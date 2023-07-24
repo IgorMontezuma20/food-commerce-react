@@ -40,9 +40,17 @@ interface CartProviderProps {
 
 export const CartContext = createContext({} as CartContextProps)
 
+const localStorageKey = '@FoodCommerce:cart'
+
 export function CartProvider({ children }: CartProviderProps) {
-  const [cart, setCart] = useState<Snack[]>([])
   const navigate = useNavigate()
+  const [cart, setCart] = useState<Snack[]>([])
+
+  function saveCart(items: Snack[]) {
+    setCart(items)
+
+    localStorage.setItem(localStorageKey, JSON.stringify(items))
+  }
 
   function addSnackIntoCart(snack: snackData): void {
     const snackExistentInCart = cart.find(
@@ -62,7 +70,7 @@ export function CartProvider({ children }: CartProviderProps) {
       })
 
       toast.success(`Outro(a) ${snackEmoji(snack.snack)} ${snack.name} adicionado nos pedidos`)
-      setCart(newCart)
+      saveCart(newCart)
 
       return
     }
@@ -71,14 +79,14 @@ export function CartProvider({ children }: CartProviderProps) {
     const newCart = [...cart, newSnack]
 
     toast.success(`${snackEmoji(snack.snack)} ${snack.name} adicionado nos pedidos`)
-    setCart(newCart)
+    saveCart(newCart)
   }
 
   function removeSnackFromCart(snack: Snack) {
     const newCart = cart.filter((item) => !(item.id === snack.id && item.snack === snack.snack))
 
     toast.success(`${snackEmoji(snack.snack)} ${snack.name} removido dos pedidos`)
-    setCart(newCart)
+    saveCart(newCart)
   }
 
   function updateSnackQuantity(snack: Snack, newQuantity: number) {
