@@ -128,6 +128,7 @@ export function CartProvider({ children }: CartProviderProps) {
       }
       toast.success('Pagamento efetuado com sucesso!')
       clearCart()
+      navigate(`/order/success/${response.data.id}`)
     } catch (error) {
       console.error(error)
       toast.error('Erro ao processar o pedido.')
