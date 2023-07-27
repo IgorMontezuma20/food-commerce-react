@@ -7,11 +7,8 @@ import { CustomerData } from '../interfaces/CustomerData'
 import { snackData } from '../interfaces/SnackData'
 
 import { snackEmoji } from '../helpers/snackEmoji'
-
-interface Snack extends snackData {
-  quantity: number
-  subtotal: number
-}
+import { Snack } from '../interfaces/Snack'
+import { processCheckout } from '../services/api'
 
 interface CartContextProps {
   cart: Snack[]
@@ -121,11 +118,20 @@ export function CartProvider({ children }: CartProviderProps) {
     navigate('/payment')
   }
 
-  function payOrder(customer: CustomerData) {
-    console.log('payOrder', cart, customer)
-    // chamada de API para o backend
+  async function payOrder(customer: CustomerData) {
+    try {
+      const response = await processCheckout(cart, customer)
 
-    clearCart() // deve ser executado após retorno positivo da API
+      if (response.data.status !== 'PAID') {
+        toast.error('Erro ao processar o pagamento. Por favor, tente novamente.')
+        return
+      }
+      toast.success('Pagamento efetuado com sucesso!')
+      clearCart()
+    } catch (error) {
+      console.error(error)
+      toast.error('Erro ao processar o pedido.')
+    }
 
     return
   }
